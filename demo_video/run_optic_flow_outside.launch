@@ -1,0 +1,7 @@
+<launch>
+
+<node pkg="rosbag" type="play" name="rosbag_player" args="/home/brainhacker/be107/optic_flow_outside.bag"/>
+<node pkg="image_transport" type="republish" name="image_decompression" args="compressed in:=/camera/image_mono raw out:=/camera/image_mono"/>
+<node pkg="image_view" type="image_view" name="image_viewer" args="image:=/camera/image_mono"/>
+
+</launch>
