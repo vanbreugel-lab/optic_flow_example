@@ -67,7 +67,7 @@ class Optic_Flow_Calculator:
                                criteria = (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 0.03))
         
         # Lucas Kanade Publisher
-        self.optic_flow_pub = rospy.Publisher("optic_flow", OpticFlowMsg)
+        self.optic_flow_pub = rospy.Publisher("optic_flow", OpticFlowMsg, queue_size=10)
         
         # Raw Image Subscriber
         self.image_sub = rospy.Subscriber(self.image_source,Image,self.image_callback)
