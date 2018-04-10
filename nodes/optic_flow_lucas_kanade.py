@@ -4,7 +4,7 @@
 import roslib, rospy
 
 # opencv imports
-import cv2, cv
+import cv2
 
 # numpy imports - basic math and matrix manipulation
 import numpy as np
@@ -54,7 +54,7 @@ def define_points_at_which_to_track_optic_flow(image, spacing):
 class Optic_Flow_Calculator:
     def __init__(self):
         # Define the source of the images, e.g. rostopic name
-        self.image_source = "/camera/image_mono"
+        self.image_source = "/camera/mono"
         
         # Initialize image aquisition
         self.bridge = CvBridge()
@@ -75,12 +75,12 @@ class Optic_Flow_Calculator:
     def image_callback(self,image):
         try: # if there is an image
             # Acquire the image, and convert to single channel gray image
-            curr_image = self.bridge.imgmsg_to_cv2(image, "mono8")
-            if len(curr_image.shape) > 2:
-                if curr_image.shape[2] > 1: # color image, convert it to gray
-                    curr_image = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY) # shape should now be (rows, columns)
-                elif curr_image.shape[2] == 1: # mono image, with wrong formatting
-                    curr_image = curr_image[:,:,0] # shape should now be (rows, columns)
+            curr_image = self.bridge.imgmsg_to_cv2(image, desired_encoding="mono8")
+            #if len(curr_image.shape) > 2:
+            #    if curr_image.shape[2] > 1: # color image, convert it to gray
+            #        curr_image = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY) # shape should now be (rows, columns)
+            #    elif curr_image.shape[2] == 1: # mono image, with wrong formatting
+            #        curr_image = curr_image[:,:,0] # shape should now be (rows, columns)
                 
             # optional: resize the image
             #curr_image = cv2.resize(curr_image, (0,0), fx=0.8, fy=0.8) 
@@ -136,7 +136,7 @@ def main():
     rospy.spin()
   except KeyboardInterrupt:
     print "Shutting down"
-  cv.DestroyAllWindows()
+  cv2.destroyAllWindows()
 
 ################################################################################
 
