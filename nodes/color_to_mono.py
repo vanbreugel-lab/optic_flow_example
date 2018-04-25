@@ -19,9 +19,9 @@ from optparse import OptionParser
 ################################################################################
 
 class Image_Converter:
-    def __init__(self, image, mode='rgb8'):
+    def __init__(self, topic, mode='rgb8'):
         # Define the source of the images, e.g. rostopic name
-        self.image_source = image
+        self.image_source = topic
         self.mode = mode # node, the actual mode doesn't really matter if we're converting to mono
         
         # Initialize image aquisiti
@@ -61,7 +61,7 @@ class Image_Converter:
 
 if __name__ == '__main__':
     parser = OptionParser()
-    parser.add_option("--image", type="str", dest="image", default='/usb_cam/image_raw',
+    parser.add_option("--topic", type="str", dest="topic", default='/usb_cam/image_raw',
                         help="name of the topic with your color image stream")
     (options, args) = parser.parse_args()
 
