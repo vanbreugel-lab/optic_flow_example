@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 
+# Command line arguments
+from optparse import OptionParser
+
 # ROS imports
 import roslib, rospy
 
@@ -12,6 +15,7 @@ import numpy as np
 # imports for ROS image handling
 from cv_bridge import CvBridge, CvBridgeError
 from sensor_msgs.msg import Image
+from std_msgs.msg import Float32
 
 # message imports specific to this package
 from optic_flow_example.msg import OpticFlowMsg
@@ -52,9 +56,9 @@ def define_points_at_which_to_track_optic_flow(image, spacing):
 ################################################################################
 
 class Optic_Flow_Calculator:
-    def __init__(self):
+    def __init__(self, topic):
         # Define the source of the images, e.g. rostopic name
-        self.image_source = "/camera/mono"
+        self.image_source = topic
         
         # Initialize image aquisition
         self.bridge = CvBridge()
@@ -68,6 +72,7 @@ class Optic_Flow_Calculator:
         
         # Lucas Kanade Publisher
         self.optic_flow_pub = rospy.Publisher("optic_flow", OpticFlowMsg, queue_size=10)
+        self.optic_flow_pub_mean = rospy.Publisher("optic_flow_mean_vx", Float32, queue_size=10)
         
         # Raw Image Subscriber
         self.image_sub = rospy.Subscriber(self.image_source,Image,self.image_callback)
@@ -76,14 +81,6 @@ class Optic_Flow_Calculator:
         try: # if there is an image
             # Acquire the image, and convert to single channel gray image
             curr_image = self.bridge.imgmsg_to_cv2(image, desired_encoding="mono8")
-            #if len(curr_image.shape) > 2:
-            #    if curr_image.shape[2] > 1: # color image, convert it to gray
-            #        curr_image = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY) # shape should now be (rows, columns)
-            #    elif curr_image.shape[2] == 1: # mono image, with wrong formatting
-            #        curr_image = curr_image[:,:,0] # shape should now be (rows, columns)
-                
-            # optional: resize the image
-            #curr_image = cv2.resize(curr_image, (0,0), fx=0.8, fy=0.8) 
             
             # Get time stamp
             secs = image.header.stamp.secs
@@ -121,6 +118,9 @@ class Optic_Flow_Calculator:
             msg.vy = flow[:,0,1]
             self.optic_flow_pub.publish(msg)
             
+            # publish mean optic flow vx data
+            self.optic_flow_pub_mean.publish(Float32(np.mean(flow[:,0,0])))
+            
             # save current image and time for next loop
             self.prev_image = curr_image
             self.last_time = curr_time
@@ -128,18 +128,21 @@ class Optic_Flow_Calculator:
         except CvBridgeError, e:
             print e
             
-################################################################################
-  
-def main():
-  optic_flow_calculator = Optic_Flow_Calculator()
-  try:
-    rospy.spin()
-  except KeyboardInterrupt:
-    print "Shutting down"
-  cv2.destroyAllWindows()
-
+    def main(self):
+        try:
+            rospy.spin()
+        except KeyboardInterrupt:
+            print "Shutting down"
+            cv2.destroyAllWindows()
+            
 ################################################################################
 
-if __name__ == '__main__':
+if __name__ == '__main__':    
+    parser = OptionParser()
+    parser.add_option("--topic", type="str", dest="topic", default='',
+                        help="ros topic with Float32 message for velocity control")
+    (options, args) = parser.parse_args()
+
     rospy.init_node('optic_flow_calculator', anonymous=True)
-    main()
+    optic_flow_calculator = Optic_Flow_Calculator(options.topic)
+    optic_flow_calculator.main()
