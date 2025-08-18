@@ -36,7 +36,7 @@ def draw_optic_flow_field(gray_image, points, flow):
         y = point[0,1]
         vx = flow[i][0,0]
         vy = flow[i][0,1]
-        cv2.line(color_img, (x,y), (x+vx, y+vy), color_red, linewidth) # draw a red line from the point with vector = [vx, vy]        
+        #cv2.line(color_img, (float(x),float(y)), (float(x)+float(vx), float(y)+float(vy)), color_red, float(linewidth)) # draw a red line from the point with vector = [vx, vy]        
     
     cv2.imshow('optic_flow_field',color_img)
     cv2.waitKey(1)
@@ -125,14 +125,14 @@ class Optic_Flow_Calculator:
             self.prev_image = curr_image
             self.last_time = curr_time
             
-        except CvBridgeError, e:
-            print e
+        except CvBridgeError as e:
+            print(e)
             
     def main(self):
         try:
             rospy.spin()
         except KeyboardInterrupt:
-            print "Shutting down"
+            print("Shutting down")
             cv2.destroyAllWindows()
             
 ################################################################################
@@ -146,3 +146,4 @@ if __name__ == '__main__':
     rospy.init_node('optic_flow_calculator', anonymous=True)
     optic_flow_calculator = Optic_Flow_Calculator(options.topic)
     optic_flow_calculator.main()
+
