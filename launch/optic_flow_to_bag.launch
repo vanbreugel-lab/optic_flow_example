@@ -1,11 +1,11 @@
 <launch>
-  <!-- Play the demo video -->
-  <node name="rosbag_player" pkg="rosbag" type="play" args="/home/jaden/catkin_ws/src/optic_flow_example/demo_video/optic_flow_outside.bag" />
+  <!-- Play the demo video. Note that you will have to change the path to the video .bag file you want to convert. -->
+  <node name="rosbag_player" pkg="rosbag" type="play" args="$(find optic_flow_example)/demo_video/optic_flow_outside.bag" />
   <node name="image_decompression" pkg="image_transport" type="republish" args="compressed in:=/camera/image raw out:=/camera/image_mono" />
 
-  <!-- Run optic flow and record -->
+  <!-- Run optic flow and record. This saves the converted bag file to the optic_flow_example folder as optic_flow_data.bag. -->
   <node name="optic_flow_node" pkg="optic_flow_example" type="optic_flow_lucas_kanade.py" args="--topic='/camera/image_mono'" output="screen"/>
-  <node name="rosbag_record" pkg="rosbag" type="record" args="-O /home/jaden/optic_flow_data.bag /optic_flow"/>
+  <node name="rosbag_record" pkg="rosbag" type="record" args="-O $(find optic_flow_example)/optic_flow_data.bag /optic_flow"/>
 </launch>
 
 <!-- to use file: roslaunch optic_flow_example optic_flow_to_bag.launch -->
