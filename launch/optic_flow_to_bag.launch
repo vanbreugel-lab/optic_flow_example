@@ -1,0 +1,11 @@
+<launch>
+  <!-- Play the demo video -->
+  <node name="rosbag_player" pkg="rosbag" type="play" args="/home/jaden/catkin_ws/src/optic_flow_example/demo_video/optic_flow_outside.bag" />
+  <node name="image_decompression" pkg="image_transport" type="republish" args="compressed in:=/camera/image raw out:=/camera/image_mono" />
+
+  <!-- Run optic flow and record -->
+  <node name="optic_flow_node" pkg="optic_flow_example" type="optic_flow_lucas_kanade.py" args="--topic='/camera/image_mono'" output="screen"/>
+  <node name="rosbag_record" pkg="rosbag" type="record" args="-O /home/jaden/optic_flow_data.bag /optic_flow"/>
+</launch>
+
+<!-- to use file: roslaunch optic_flow_example optic_flow_to_bag.launch -->
